@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block head %}
+    {% load staticfiles %}
+    <link rel="stylesheet" type="text/css" href="{% static 'amazon_mec_ep/style.css' %}"/>
+{% endblock %}
+
+{% block body %}
+
+    <!-- Flexbox container -->
+    <div class="flex-container">
+
+        <!-- Header -->
+        <header>
+            <h1>TcsMtl - Metadata</h1>
+            <h3>Amazon Mec Episodic</h3>
+        </header>
+
+        <div class="flex-container main">
+
+            <!-- Aside -->
+            <aside>
+                {% if provider %}
+                <ul>
+                    <li>Provider: {{ provider }}</li>
+                    {% if language %}
+                        <li>Original Language-Region: {{ language }}{% if region %}-{{ region }}{% endif %}</li>
+                    {% endif %}
+                    {% if genre1 %}
+                        <li>Genre 1: {{ genre1 }}</li>
+                    {% endif %}
+                    {% if genre2 %}
+                        <li>Genre 2: {{ genre2 }}</li>
+                    {% endif %}
+                    {% if genre3 %}
+                        <li>Genre 3: {{ genre3 }}</li>
+                    {% endif %}
+                </ul>
+                {% endif %}
+            </aside>
+
+            <!-- Article -->
+            <article>
+                <form action="{% url "amazon_mec_ep:index" %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                    <!-- Section Providers -->
+                    <section>
+                        <label for="{{ form.provider.id_for_label }}">Provider:</label>
+                        {{ form.provider }}
+                    </section>
+
+                    <!-- Section Ingest Metadata -->
+                    <section>
+                        <label for="metadata">Ingest metadata:</label>
+                        <input type="file" accept=".xlsx" name="metadata">
+                        <button type="button" name="ingest_btn">Ingest Metadata</button>
+                    </section>
+
+                    <!-- Section Original Language -->
+                    <section>
+                        <label for="{{ form.original_language_locale.id_for_label }}">Original Language:</label>
+                        {{ form.original_language_locale }}{{ form.original_language_region }}
+                    </section>
+
+                    <!-- Section Genres -->
+                    <section>
+                        <label for="{{ form.genre1.id_for_label }}">Genre 1:</label>
+                        {{ form.genre1 }}
+                    </section>
+                    <section>
+                        <label for="{{ form.genre2.id_for_label }}">Genre 2:</label>
+                        {{ form.genre2 }}
+                    </section>
+                    <section>
+                        <label for="{{ form.genre3.id_for_label }}">Genre 3:</label>
+                        {{ form.genre3 }}
+                    </section>
+
+                    <!-- Section Reset & Submit -->
+                    <section>
+                        <input type="reset">
+                        <input type="submit" value="Download Xml">
+                    </section>
+
+                </form>
+            </article>
+
+            <!-- Footer -->
+            <footer>
+                <p>Page version: 2017-08-26-A</p>
+            </footer>
+        </div>
+
+    </div>
+
+    <script
+        src="https://code.jquery.com/jquery-3.2.1.min.js"
+        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+        crossorigin="anonymous"></script>
+    <script src="{% static "amazon_mec_ep/js/javascript.js" %}"></script>
+
+{% endblock %}
