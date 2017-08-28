@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block head %}
+    {% load staticfiles %}
+    <link rel="stylesheet" type="text/css" href="{% static 'amazon_mec_ep/style.css' %}"/>
+{% endblock %}
+
+{% block body %}
+
+    <!-- Flexbox container -->
+    <div class="flex-container">
+
+        <!-- Header -->
+        <header>
+            <h1>TcsMtl - Metadata</h1>
+            <h3>Amazon Mec Episodic</h3>
+        </header>
+
+        <div class="flex-container main">
+
+            <!-- Aside -->
+            <aside>
+
+            </aside>
+
+            <!-- Article -->
+            <article>
+                <form action="{% url "amazon_mec_ep:provider-add" %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                    {{ form.as_p }}
+                    <input type="submit">
+
+                </form>
+            </article>
+
+            <!-- Footer -->
+            <footer>
+            </footer>
+        </div>
+
+    </div>
+
+
+{% endblock %}

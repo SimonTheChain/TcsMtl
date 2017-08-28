@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block head %}
+    {% load staticfiles %}
+    <link rel="stylesheet" type="text/css" href="{% static 'amazon_mec_ep/style.css' %}"/>
+{% endblock %}
+
+{% block body %}
+
+    <!-- Flexbox container -->
+    <div class="flex-container">
+
+        <!-- Header -->
+        <header>
+            <h1>TcsMtl - Metadata</h1>
+            <h3>Amazon Mec Episodic - Providers</h3>
+        </header>
+
+        <div class="flex-container main">
+
+            <!-- Aside -->
+            <aside>
+
+            </aside>
+
+            <!-- Article -->
+            <article>
+                <h4>Provider details</h4>
+                <p>Provider name: {{ provider.name }}</p>
+                <p>Amazon code: {{ provider.amazon_code }}</p>
+
+            </article>
+
+            <!-- Footer -->
+            <footer>
+            </footer>
+        </div>
+
+    </div>
+
+
+{% endblock %}
