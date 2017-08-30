@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block head %}{% load staticfiles %}{% endblock %}
+
+{% block header %}Providers{% endblock %}
+
+{% block aside %}Delete Provider{% endblock %}
+
+{% block article %}
+
+    <section>
+        <h4>Are you sure you want to delete the following provider and all its related elements?</h4>
+        <p>Provider: <strong>{{ provider.name }}</strong></p>
+    </section>
+
+    <section>
+        <h4>Series</h4>
+        <ul>
+            {% for series in provider.series_set.all %}
+                <li><a href="{% url 'amazon_mec_ep:series-detail' series.id %}" class="btn btn-info">{{ series.name }}</a></li>
+            {% empty %}
+                <li>No series have been added yet.</li>
+            {% endfor %}
+        </ul>
+    </section>
+
+    <section>
+        <form method="post" action="">
+           {% csrf_token %}
+           <input type="submit" value="Delete" class="btn btn-danger"/><a href="{% url "amazon_mec_ep:provider-detail" provider.id %}" class="btn btn-default">Cancel</a>
+        </form>
+    </section>
+
+{% endblock %}

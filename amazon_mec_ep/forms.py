@@ -1,9 +1,17 @@
 from django import forms
-from .models import AmazonMecEpSeries
+from .models import Series
 
 
-class AmazonMecEpSeriesForm(forms.ModelForm):
+class SeriesForm(forms.ModelForm):
 
     class Meta:
-        model = AmazonMecEpSeries
-        fields = "__all__"
+        model = Series
+        fields = [
+            "name",
+            "original_language_locale",
+            "original_language_region",
+            "genre1",
+            "genre2",
+            "genre3",
+            "provider"
+        ]

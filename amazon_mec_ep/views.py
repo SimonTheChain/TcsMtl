@@ -1,61 +1,228 @@
 from django.shortcuts import render
-from .forms import AmazonMecEpSeriesForm
+from django.http import HttpResponse
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
-from .models import Provider, AmazonMecEpSeries, AmazonMecEpSeason, AmazonMecEpEpisode
+from .models import Provider, Series, SeriesRating, SeriesInfo
+from .forms import SeriesForm
+import lxml.etree as etree
+from openpyxl import load_workbook
+import warnings
 
 
-def index(request):
-    # if this is a POST request we need to process the form data
-    if request.method == 'POST':
-        # create a form instance and populate it with data from the request:
-        form = AmazonMecEpSeriesForm(request.POST)
-        # check whether it's valid:
+def ingest(request):
+    if request.method == "POST":
+        form = SeriesForm(request.POST)
+
         if form.is_valid():
-            # process the data in form.cleaned_data as required
-            provider = form.cleaned_data["provider"]
-            language = form.cleaned_data["original_language_locale"]
-            region = form.cleaned_data["original_language_region"]
-            genre1 = form.cleaned_data["genre1"]
-            genre2 = form.cleaned_data["genre2"]
-            genre3 = form.cleaned_data["genre3"]
+
+            files = request.FILES.getlist("xlsx_files")
+
+            for f in files:
+                series_object = Series()
+                ratings_object = SeriesRating()
+
+                series_object.name = form.cleaned_data["name"]
+                series_object.original_language_locale = form.cleaned_data["original_language_locale"]
+                series_object.original_language_region = form.cleaned_data["original_language_region"]
+                series_object.genre1 = form.cleaned_data["genre1"]
+                series_object.genre2 = form.cleaned_data["genre2"]
+                series_object.genre3 = form.cleaned_data["genre3"]
+                series_object.provider = form.cleaned_data["provider"]
+
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
+                    wb = load_workbook(f)
+
+                for sheet in wb:
+
+                    if sheet.title == "Serie":
+                        rows = sheet.rows
+                        next(rows)
+                        next(rows)
+
+                        for row in rows:
+
+                            # Series ID
+                            if series_object.amazon_id == row[3].value:
+                                pass
+
+                            else:
+                                series_object.amazon_id = row[3].value
+
+                            # Series start date
+                            if series_object.date == str(row[16].value):
+                                pass
+
+                            else:
+                                series_object.date = str(row[16].value)
+
+                series_object.save()
+
+                # Series Info
+                # self.a_ep_series_add_info(
+                #     xlsx_locale=str(row[0].value).replace(" ", ""),
+                #     xlsx_region=str(row[1].value).replace(" ", ""),
+                #     xlsx_title=row[7].value,
+                #     xlsx_sum_short=row[9].value,
+                #     xlsx_sum_long=row[10].value)
+
+                # Series Info
+                for sheet in wb:
+
+                    if sheet.title == "Serie":
+                        rows = sheet.rows
+                        next(rows)
+                        next(rows)
+
+                        for row in rows:
+                            info_object = SeriesInfo()
+
+                            info_object.language_locale = str(row[0].value).replace(" ", "")
+                            info_object.language_region = str(row[1].value).replace(" ", "")
+                            info_object.title = row[7].value
+                            info_object.summary_short = row[9].value
+                            info_object.summary_long = row[10].value
+                            info_object.series = series_object
+
+                            info_object.save()
 
             return render(
                 request,
-                "amazon_mec_ep/index.html",
-                context={
-                    'form': form,
-                    "provider": provider,
-                    "language": language,
-                    "region": region,
-                    "genre1": genre1,
-                    "genre2": genre2,
-                    "genre3": genre3,
-                }
-            )
+                "amazon_mec_ep/ingest_form.html",
+                context={"files_ingest": files})
 
-    # if a GET (or any other method) we'll create a blank form
     else:
-        form = AmazonMecEpSeriesForm()
+        series_form = SeriesForm()
+        return render(request, "amazon_mec_ep/ingest_form.html", context={"SeriesForm": series_form})
 
-    return render(
-        request,
-        "amazon_mec_ep/index.html",
-        context={'form': form})
+
+def mec_series(request, pk):
+    series = Series.objects.get(pk=pk)
+    nsmap = {
+        "mdmec": "http://www.movielabs.com/schema/mdmec/v2.5",
+        "md": "http://www.movielabs.com/schema/md/v2.5/md",
+        "xsi": "http://www.w3.org/2001/XMLSchema-instance"
+    }
+    schemalocation = "http://www.movielabs.com/schema/mdmec/v2.5 ../mdmec-v2.5.xsd"
+
+    xml_root = etree.Element(
+        "{%s}CoreMetadata" % nsmap["mdmec"],
+        attrib={"{" + nsmap["xsi"] + "}schemaLocation": schemalocation},
+        nsmap=nsmap)
+
+    basic = etree.SubElement(
+        xml_root,
+        "{%s}Basic" % nsmap["mdmec"],
+        attrib={"ContentID": "md:cid:org:{}:{}".format(
+            series.provider.amazon_code,
+            series.amazon_id)})
+
+    for i in series.seriesinfo_set.all():
+        locale_region = "{}-{}".format(i.language_locale, i.language_region)
+        if i.default:
+            info = etree.SubElement(
+                basic,
+                "{%s}LocalizedInfo" % nsmap["md"],
+                attrib={
+                    "language": locale_region,
+                    "default": "true"})
+
+        else:
+            info = etree.SubElement(
+                basic,
+                "{%s}LocalizedInfo" % nsmap["md"],
+                attrib={
+                    "language": locale_region})
+
+        title_display = etree.SubElement(info, "{%s}TitleDisplayUnlimited" % nsmap["md"])
+        title_display.text = i.title
+        title_sort = etree.SubElement(info, "{%s}TitleSort" % nsmap["md"])
+        art = etree.SubElement(info, "{%s}ArtReference" % nsmap["md"])
+        sum190 = etree.SubElement(info, "{%s}Summary190" % nsmap["md"])
+        sum400 = etree.SubElement(info, "{%s}Summary400" % nsmap["md"])
+        sum400.text = i.summary_short
+        sum4000 = etree.SubElement(info, "{%s}Summary4000" % nsmap["md"])
+        sum4000.text = i.summary_long
+
+        genres = [series.genre1, series.genre2, series.genre3]
+        print(genres)
+
+        for g in genres:
+            if g != "" and g is not None:
+                genre = etree.SubElement(info, "{%s}Genre" % nsmap["md"], attrib={"id": g})
+
+    year = etree.SubElement(basic, "{%s}ReleaseYear" % nsmap["md"])
+    year.text = series.date.strftime('%Y-%m-%d')[:4]
+    date = etree.SubElement(basic, "{%s}ReleaseDate" % nsmap["md"])
+    date.text = series.date.strftime('%Y-%m-%d')
+    work = etree.SubElement(basic, "{%s}WorkType" % nsmap["md"])
+    work.text = "series"
+    alt = etree.SubElement(basic, "{%s}AltIdentifier" % nsmap["md"])
+    namespace = etree.SubElement(alt, "{%s}Namespace" % nsmap["md"])
+    namespace.text = "ORG"
+    identifier = etree.SubElement(alt, "{%s}Identifier" % nsmap["md"])
+    identifier.text = series.amazon_id
+    ratingset = etree.SubElement(basic, "{%s}RatingSet" % nsmap["md"])
+
+    if not series.seriesrating_set:
+        not_rated = etree.SubElement(ratingset, "{%s}NotRated" % nsmap["md"])
+        not_rated.text = "true"
+
+    else:
+        for r in series.seriesrating_set.all():
+            rating = etree.SubElement(ratingset, "{%s}Rating" % nsmap["md"])
+            region = etree.SubElement(rating, "{%s}Region" % nsmap["md"])
+            rating_country = etree.SubElement(region, "{%s}country" % nsmap["md"])
+            rating_country.text = r.country
+            rating_system = etree.SubElement(rating, "{%s}System" % nsmap["md"])
+            rating_system.text = r.system
+            rating_value = etree.SubElement(rating, "{%s}Value" % nsmap["md"])
+            rating_value.text = r.value
+
+    original_language = etree.SubElement(basic, "{%s}OriginalLanguage" % nsmap["md"])
+
+    if series.original_language_region == "MX":
+        original_locale_region = "{}-{}".format(
+            series.original_language_locale,
+            "419")
+
+    else:
+        original_locale_region = "{}-{}".format(
+            series.original_language_locale,
+            series.original_language_region)
+
+    original_language.text = original_locale_region
+    associate_org = etree.SubElement(basic, "{%s}AssociatedOrg" % nsmap["md"],
+                                     attrib={"organizationID": series.provider.amazon_code, "role": "licensor"})
+
+    company_display = etree.SubElement(xml_root, "{%s}CompanyDisplayCredit" % nsmap["mdmec"])
+    display_string = etree.SubElement(company_display, "{%s}DisplayString" % nsmap["md"],
+                                      attrib={"language": "en-US"})
+    display_string.text = series.provider.name
+
+    tree = etree.ElementTree(xml_root)
+    xml_file = etree.tostring(
+        tree,
+        xml_declaration=True,
+        encoding="UTF-8",
+        pretty_print=True)
+
+    filename = "{}-{}-MEC-Series.xml".format(series.provider.amazon_code, series.amazon_id)
+
+    response = HttpResponse(xml_file, content_type='application/xml')
+    response['Content-Disposition'] = 'attachment; filename=' + filename
+    return response
 
 
 class ProviderListView(ListView):
     model = Provider
+    ordering = ["name"]
 
 
 class ProviderDetailView(DetailView):
     model = Provider
-
-    def get_context_data(self, **kwargs):
-        context = super(ProviderDetailView, self).get_context_data(**kwargs)
-        return context
 
 
 class ProviderCreate(CreateView):
@@ -65,4 +232,45 @@ class ProviderCreate(CreateView):
 
 class ProviderUpdate(UpdateView):
     model = Provider
+    fields = "__all__"
+
+
+class ProviderDelete(DeleteView):
+    model = Provider
+    success_url = reverse_lazy("amazon_mec_ep:provider-list")
+
+
+class SeriesList(ListView):
+    model = Series
+    ordering = ["name"]
+
+
+class SeriesDetail(DetailView):
+    model = Series
+
+    def get_context_data(self, **kwargs):
+        context = super(SeriesDetail, self).get_context_data(**kwargs)
+
+        try:
+            info = SeriesInfo.objects.get(series=context["object"].id)
+
+        except SeriesInfo.DoesNotExist:
+            context["mec_ready"] = False
+
+        else:
+            if not info.series.date or not info.title or not info.summary_short:
+                context["mec_ready"] = False
+            else:
+                context["mec_ready"] = True
+
+        return context
+
+
+class SeriesCreate(CreateView):
+    model = Series
+    fields = "__all__"
+
+
+class SeriesUpdate(UpdateView):
+    model = Series
     fields = "__all__"

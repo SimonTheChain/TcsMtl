@@ -2,15 +2,15 @@
 
 {% block head %}{% load staticfiles %}{% endblock %}
 
-{% block header %}Providers{% endblock %}
+{% block header %}Series{% endblock %}
 
-{% block aside %}Provider Form{% endblock %}
+{% block aside %}Series Form{% endblock %}
 
 {% block article %}
 
     <section>
         <form
-                action="{% if provider.id %}{% url 'amazon_mec_ep:provider-update' provider.id %}{% else %}{% url 'amazon_mec_ep:provider-add' %}{% endif %}"
+                action="{% if series.id %}{% url 'amazon_mec_ep:series-update' series.id %}{% else %}{% url 'amazon_mec_ep:series-add' %}{% endif %}"
                 method="post"
                 enctype="multipart/form-data">
         {% csrf_token %}
@@ -23,7 +23,7 @@
     </section>
 
     <section>
-        <a href="{% url 'amazon_mec_ep:provider-list' %}" class="btn btn-default">Back to List</a>
+        <a href="{% url 'amazon_mec_ep:series-list' %}" class="btn btn-default">Series List</a>
     </section>
 
 {% endblock %}

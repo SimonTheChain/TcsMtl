@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block head %}{% load staticfiles %}{% endblock %}
+
+{% block header %}Series{% endblock %}
+
+{% block aside %}Series Details{% endblock %}
+
+{% block article %}
+
+    <section>
+        <h4>Details</h4>
+        <ul>
+            <li>Provider: <a href="{% url 'amazon_mec_ep:provider-detail' series.provider.id %}" class="btn btn-info">{{ series.provider }}</a></li>
+            <li>Name: <strong>{{ series.name }}</strong></li>
+            <li>Amazon ID: <strong>{{ series.amazon_id }}</strong></li>
+            <li>Original language: <strong>{{ series.original_language_locale }}-{{ series.original_language_region }}</strong></li>
+            <li>Genre 1: <strong>{{ series.genre1 }}</strong></li>
+            <li>Genre 2: <strong>{{ series.genre2 }}</strong></li>
+            <li>Genre 3: <strong>{{ series.genre3 }}</strong></li>
+            <li>Release date: <strong>{{ series.date }}</strong></li>
+        </ul>
+    </section>
+
+    <section>
+        <h4>Ratings</h4>
+        <ul>
+            {% for rating in series.seriesrating_set.all %}
+                <li><a href="#" class="btn btn-info">{{ rating.country }}: {{ rating.system }}, {{ rating.value }}</a></li>
+            {% empty %}
+                <li>No ratings have been added yet.</li>
+            {% endfor %}
+        </ul>
+    </section>
+
+    <section>
+        <h4>Localized Information</h4>
+        <ul>
+            {% for info in series.seriesinfo_set.all %}
+                <li><a href="#" class="btn btn-info">{{ info.language_locale }}-{{ info.language_region }}</a></li>
+                <ul>
+                    <li>Default: <strong>{{ info.default }}</strong></li>
+                    <li>Title: <strong>{{ info.title }}</strong></li>
+                    <li>Summary short: <strong>{{ info.summary_short }}</strong></li>
+                    <li>Summary long: <strong>{{ info.summary_long }}</strong></li>
+                </ul>
+            {% empty %}
+                <li>No localized information has been added yet.</li>
+            {% endfor %}
+        </ul>
+    </section>
+
+    <section>
+        <a href="{% url 'amazon_mec_ep:series-list' %}" class="btn btn-default">Series List</a>
+        <a href="{% url 'amazon_mec_ep:series-update' series.id %}" class="btn btn-warning">Edit</a>
+        <a href="#" class="btn btn-danger">Delete</a>
+        <a href="#" class="btn btn-primary">Add Rating</a>
+        <a href="#" class="btn btn-primary">Add Localized Info</a>
+        {% if mec_ready %}
+            <a href="{% url 'amazon_mec_ep:series-mec' series.id %}" class="btn btn-success">Download Mec</a>
+        {% else %}
+            <a href="#" class="btn btn-danger">Mec Incomplete</a>
+        {% endif %}
+    </section>
+
+{% endblock %}

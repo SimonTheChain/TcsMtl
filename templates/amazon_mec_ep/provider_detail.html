@@ -1,42 +1,38 @@
 {% extends "base.html" %}
 
-{% block head %}
-    {% load staticfiles %}
-    <link rel="stylesheet" type="text/css" href="{% static 'amazon_mec_ep/style.css' %}"/>
-{% endblock %}
+{% block head %}{% load staticfiles %}{% endblock %}
 
-{% block body %}
+{% block header %}Providers{% endblock %}
 
-    <!-- Flexbox container -->
-    <div class="flex-container">
+{% block aside %}Provider Details{% endblock %}
 
-        <!-- Header -->
-        <header>
-            <h1>TcsMtl - Metadata</h1>
-            <h3>Amazon Mec Episodic - Providers</h3>
-        </header>
+{% block article %}
 
-        <div class="flex-container main">
+    <section>
+        <h4>Details</h4>
+        <ul>
+            <li>Provider name: <strong>{{ provider.name }}</strong></li>
+            <li>Amazon code: <strong>{{ provider.amazon_code }}</strong></li>
+        </ul>
+    </section>
 
-            <!-- Aside -->
-            <aside>
+    <section>
+        <h4>Series</h4>
+        <ul>
+            {% for series in provider.series_set.all %}
+                <li><a href="{% url 'amazon_mec_ep:series-detail' series.id %}" class="btn btn-info">{{ series.name }}</a></li>
+            {% empty %}
+                <li>No series have been added yet.</li>
+            {% endfor %}
+        </ul>
+    </section>
 
-            </aside>
-
-            <!-- Article -->
-            <article>
-                <h4>Provider details</h4>
-                <p>Provider name: {{ provider.name }}</p>
-                <p>Amazon code: {{ provider.amazon_code }}</p>
-
-            </article>
-
-            <!-- Footer -->
-            <footer>
-            </footer>
-        </div>
-
-    </div>
-
+    <section>
+        <a href="{% url 'amazon_mec_ep:provider-list' %}" class="btn btn-default">Provider List</a>
+        <a href="{% url 'amazon_mec_ep:provider-update' provider.id %}" class="btn btn-warning">Edit</a>
+        <a href="{% url 'amazon_mec_ep:provider-delete' provider.id %}" class="btn btn-danger">Delete</a>
+        <a href="{% url 'amazon_mec_ep:ingest' %}" class="btn btn-primary">Ingest Metadata</a>
+        <a href="{% url 'amazon_mec_ep:series-add' %}" class="btn btn-primary">Add Series</a>
+    </section>
 
 {% endblock %}

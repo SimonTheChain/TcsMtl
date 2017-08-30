@@ -18,5 +18,5 @@ from django.contrib import admin
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^metadata/amazon/mec/episodic/', include("amazon_mec_ep.urls", namespace="amazon_mec_ep")),
+    url(r'^metadata/', include("amazon_mec_ep.urls", namespace="amazon_mec_ep")),
 ]

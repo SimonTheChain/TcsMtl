@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block head %}{% load staticfiles %}{% endblock %}
+
+{% block header %}Ingest Metadata{% endblock %}
+
+{% block aside %}Ingest Form{% endblock %}
+
+{% block article %}
+
+    <section>
+        <form action="#" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+            {{ SeriesForm.as_p }}
+
+            <br>
+            <label for="xlsx_files">Select the metadata file to ingest:</label>
+            <input type="file" accept=".xlsx" id="xlsx_files">
+            <button type="submit" name="files_btn" class="btn btn-success">Ingest Files</button>
+
+        </form>
+    </section>
+
+    <section>
+        {% if files_ingest %}
+            <h4>The following files have been successfully ingested</h4>
+            <ul>
+                {% for f in files_ingest %}
+                    <li>{{ f }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </section>
+
+    <section>
+        <a href="{% url 'amazon_mec_ep:provider-list' %}" class="btn btn-default">Providers List</a>
+        <a href="{% url 'amazon_mec_ep:series-list' %}" class="btn btn-default">Series List</a>
+    </section>
+
+{% endblock %}

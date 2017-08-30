@@ -1,47 +1,27 @@
 {% extends "base.html" %}
 
-{% block head %}
-    {% load staticfiles %}
-    <link rel="stylesheet" type="text/css" href="{% static 'amazon_mec_ep/style.css' %}"/>
-{% endblock %}
+{% block head %}{% load staticfiles %}{% endblock %}
 
-{% block body %}
+{% block header %}Providers{% endblock %}
 
-    <!-- Flexbox container -->
-    <div class="flex-container">
+{% block aside %}List of Providers{% endblock %}
 
-        <!-- Header -->
-        <header>
-            <h1>TcsMtl - Metadata</h1>
-            <h3>Amazon Mec Episodic - Providers</h3>
-        </header>
+{% block article %}
 
-        <div class="flex-container main">
+    <section>
+        <ul>
+            {% for provider in provider_list %}
+                <li><a href="{% url 'amazon_mec_ep:provider-detail' provider.id %}" class="btn btn-info">
+                    {{ provider.name }}
+                </a></li>
+            {% empty %}
+                <li>No providers have been added yet.</li>
+            {% endfor %}
+        </ul>
+    </section>
 
-            <!-- Aside -->
-            <aside>
-
-            </aside>
-
-            <!-- Article -->
-            <article>
-                <h4>List of providers</h4>
-                <ul>
-                    {% for provider in provider_list %}
-                        <li><a href="{% url 'amazon_mec_ep:provider-detail' provider.id %}">{{ provider.name }}</a></li>
-                    {% empty %}
-                        <li>No providers have been added yet.</li>
-                    {% endfor %}
-                </ul>
-
-            </article>
-
-            <!-- Footer -->
-            <footer>
-            </footer>
-        </div>
-
-    </div>
-
+    <section>
+        <a href="{% url 'amazon_mec_ep:provider-add' %}" class="btn btn-primary">Add Provider</a>
+    </section>
 
 {% endblock %}
