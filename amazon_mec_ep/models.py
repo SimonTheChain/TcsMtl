@@ -65,6 +65,9 @@ class SeriesInfo(models.Model):
     def __str__(self):
         return "{}-{}".format(self.language_locale, self.language_region)
 
+    def get_absolute_url(self):
+        return reverse('amazon_mec_ep:info-detail', kwargs={'pk': self.pk})
+
 
 class Season(models.Model):
     name = models.CharField(max_length=100, unique=True)
