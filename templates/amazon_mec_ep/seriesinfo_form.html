@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block head %}{% load staticfiles %}{% endblock %}
+
+{% block header %}Series{% endblock %}
+
+{% block aside %}Localized Information Form{% endblock %}
+
+{% block article %}
+
+    <section>
+        <form
+                action="{% if seriesinfo.id %}{% url 'amazon_mec_ep:info-update' seriesinfo.id %}{% else %}#{% endif %}"
+                method="post"
+                enctype="multipart/form-data">
+        {% csrf_token %}
+
+            {{ form.as_p }}
+
+            <input type="submit" value="Save" class="btn btn-warning">
+
+        </form>
+    </section>
+
+    <section>
+        <a href="{% url 'amazon_mec_ep:series-list' %}" class="btn btn-default">Series List</a>
+    </section>
+
+{% endblock %}

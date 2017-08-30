@@ -12,14 +12,16 @@ import warnings
 
 
 def ingest(request):
+    series_form = SeriesForm()
+
     if request.method == "POST":
         form = SeriesForm(request.POST)
+        files = request.FILES.getlist("xlsx_files")
 
         if form.is_valid():
 
-            files = request.FILES.getlist("xlsx_files")
-
             for f in files:
+                print(f)
                 series_object = Series()
                 ratings_object = SeriesRating()
 
@@ -58,15 +60,23 @@ def ingest(request):
                             else:
                                 series_object.date = str(row[16].value)
 
-                series_object.save()
+                    # if sheet.title == "Season":
+                    #     rows = sheet.rows
+                    #     next(rows)
+                    #     next(rows)
+                    #
+                    #     for row in rows:
+                    #
+                    #         # Rating
+                    #         if row[19].value in variables.a_ep_rating_system.values():
+                    #             pass
+                    #
+                    #         else:
+                    #             self.a_ep_add_rating(
+                    #                 xlsx_system=row[19].value,
+                    #                 xlsx_value=str(row[20].value))
 
-                # Series Info
-                # self.a_ep_series_add_info(
-                #     xlsx_locale=str(row[0].value).replace(" ", ""),
-                #     xlsx_region=str(row[1].value).replace(" ", ""),
-                #     xlsx_title=row[7].value,
-                #     xlsx_sum_short=row[9].value,
-                #     xlsx_sum_long=row[10].value)
+                series_object.save()
 
                 # Series Info
                 for sheet in wb:
@@ -88,14 +98,22 @@ def ingest(request):
 
                             info_object.save()
 
-            return render(
-                request,
-                "amazon_mec_ep/ingest_form.html",
-                context={"files_ingest": files})
+        return render(
+            request,
+            "amazon_mec_ep/ingest_form.html",
+            context={"SeriesForm": series_form, "files_ingest": files})
 
     else:
-        series_form = SeriesForm()
         return render(request, "amazon_mec_ep/ingest_form.html", context={"SeriesForm": series_form})
+
+
+def mec_missing(request, pk):
+    series = Series.objects.get(pk=pk)
+
+    return render(
+        request,
+        "amazon_mec_ep/series_missing.html",
+        context={"series": series})
 
 
 def mec_series(request, pk):
@@ -154,9 +172,9 @@ def mec_series(request, pk):
                 genre = etree.SubElement(info, "{%s}Genre" % nsmap["md"], attrib={"id": g})
 
     year = etree.SubElement(basic, "{%s}ReleaseYear" % nsmap["md"])
-    year.text = series.date.strftime('%Y-%m-%d')[:4]
+    year.text = series.date[:4]
     date = etree.SubElement(basic, "{%s}ReleaseDate" % nsmap["md"])
-    date.text = series.date.strftime('%Y-%m-%d')
+    date.text = series.date
     work = etree.SubElement(basic, "{%s}WorkType" % nsmap["md"])
     work.text = "series"
     alt = etree.SubElement(basic, "{%s}AltIdentifier" % nsmap["md"])
@@ -250,18 +268,18 @@ class SeriesDetail(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(SeriesDetail, self).get_context_data(**kwargs)
+        context["mec_ready"] = True
 
         try:
-            info = SeriesInfo.objects.get(series=context["object"].id)
+            info = SeriesInfo.objects.filter(series=context["object"].id)
 
         except SeriesInfo.DoesNotExist:
             context["mec_ready"] = False
 
         else:
-            if not info.series.date or not info.title or not info.summary_short:
-                context["mec_ready"] = False
-            else:
-                context["mec_ready"] = True
+            for i in info:
+                if not i.series.date or not i.title or not i.summary_short:
+                    context["mec_ready"] = False
 
         return context
 
@@ -273,4 +291,13 @@ class SeriesCreate(CreateView):
 
 class SeriesUpdate(UpdateView):
     model = Series
+    fields = "__all__"
+
+
+class SeriesInfoDetail(DetailView):
+    model = SeriesInfo
+
+
+class SeriesInfoUpdate(UpdateView):
+    model = SeriesInfo
     fields = "__all__"

@@ -1,5 +1,4 @@
 from django.urls import reverse
-from django.forms import ModelForm
 from django.db import models
 
 
@@ -29,7 +28,7 @@ class Provider(models.Model):
 class Series(models.Model):
     name = models.CharField(max_length=100, unique=True)
     amazon_id = models.CharField(max_length=50, unique=True)
-    date = models.DateField(blank=True, null=True, default=None)
+    date = models.CharField(max_length=10, blank=True, null=True, default=None)
     original_language_locale = models.CharField(max_length=2, choices=BLANK + LANGUAGES, default=None)
     original_language_region = models.CharField(max_length=2, choices=BLANK + REGIONS, default=None)
     genre1 = models.CharField(max_length=50, choices=BLANK + GENRES, default="av_genre_action")

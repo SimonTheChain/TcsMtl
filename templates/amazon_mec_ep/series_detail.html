@@ -37,7 +37,7 @@
         <h4>Localized Information</h4>
         <ul>
             {% for info in series.seriesinfo_set.all %}
-                <li><a href="#" class="btn btn-info">{{ info.language_locale }}-{{ info.language_region }}</a></li>
+                <li><a href="{% url 'amazon_mec_ep:info-detail' info.id %}" class="btn btn-info">{{ info.language_locale }}-{{ info.language_region }}</a></li>
                 <ul>
                     <li>Default: <strong>{{ info.default }}</strong></li>
                     <li>Title: <strong>{{ info.title }}</strong></li>
@@ -59,7 +59,7 @@
         {% if mec_ready %}
             <a href="{% url 'amazon_mec_ep:series-mec' series.id %}" class="btn btn-success">Download Mec</a>
         {% else %}
-            <a href="#" class="btn btn-danger">Mec Incomplete</a>
+            <a href="{% url 'amazon_mec_ep:series-mec-missing' series.id %}" class="btn btn-danger">Mec Incomplete</a>
         {% endif %}
     </section>
 

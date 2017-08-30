@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block head %}{% load staticfiles %}{% endblock %}
+
+{% block header %}Series{% endblock %}
+
+{% block aside %}Mec - Missing Requirements{% endblock %}
+
+{% block article %}
+
+    <section>
+        <h4>The following elements are missing and required to generate the Mec for the series: {{ series.name }}</h4>
+        <ul>
+            {% if not series.date %}
+                <li>Release date</li>
+            {% endif %}
+            {% if not series.seriesinfo_set %}
+                <li>Minimum one Localized Info</li>
+            {% else %}
+                {% for info in series.seriesinfo_set.all %}
+                    {% if not info.title %}
+                        <li>Title for Localized Info <a href="{% url 'amazon_mec_ep:info-detail' info.id %}" class="btn btn-info">{{ info }}</a></li>
+                    {% endif %}
+                    {% if not info.summary_short %}
+                        <li>Summary short for Localized Info <a href="{% url 'amazon_mec_ep:info-detail' info.id %}" class="btn btn-info">{{ info }}</a></li>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        </ul>
+    </section>
+
+    <section>
+        <a href="{% url 'amazon_mec_ep:provider-list' %}" class="btn btn-default">Providers List</a>
+        <a href="{% url 'amazon_mec_ep:series-list' %}" class="btn btn-default">Series List</a>
+        <a href="{% url 'amazon_mec_ep:series-detail' series.id %}" class="btn btn-info">
+            {{ series.name }}
+        </a>
+    </section>
+
+{% endblock %}

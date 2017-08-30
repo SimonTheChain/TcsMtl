@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block head %}{% load staticfiles %}{% endblock %}
+
+{% block header %}Series{% endblock %}
+
+{% block aside %}Localized Information Details{% endblock %}
+
+{% block article %}
+
+    <section>
+        <h4>Details</h4>
+        <ul>
+            <li>Language: <strong>{{ seriesinfo.language_locale }}-{{ seriesinfo.language_region }}</strong></li>
+            <li>Default: <strong>{{ seriesinfo.default }}</strong></li>
+            <li>Title: <strong>{{ seriesinfo.title }}</strong></li>
+            <li>Summary short: <strong>{{ seriesinfo.summary_short }}</strong></li>
+            <li>Summary long: <strong>{{ seriesinfo.summary_long }}</strong></li>
+        </ul>
+    </section>
+
+    <section>
+        <a href="{% url 'amazon_mec_ep:series-list' %}" class="btn btn-default">Series List</a>
+        <a href="{% url 'amazon_mec_ep:info-update' seriesinfo.id %}" class="btn btn-warning">Edit</a>
+        <a href="#" class="btn btn-danger">Delete</a>
+        <a href="{% url 'amazon_mec_ep:series-detail' seriesinfo.series.id %}" class="btn btn-info">{{ seriesinfo.series.name }}</a>
+    </section>
+
+{% endblock %}
