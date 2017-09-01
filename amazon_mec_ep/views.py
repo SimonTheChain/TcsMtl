@@ -111,10 +111,10 @@ def mec_missing(request, pk):
     series = Series.objects.get(pk=pk)
     seriesinfo = SeriesInfo.objects.filter(series=series.id)
 
-    default_selected = False
+    default_selected = 0
     for si in seriesinfo:
         if si.default:
-            default_selected = True
+            default_selected += 1
 
     return render(
         request,
@@ -283,9 +283,21 @@ class SeriesDetail(DetailView):
             context["mec_ready"] = False
 
         else:
+            default = 0
+
             for i in info:
-                if not i.series.date or not i.title or not i.summary_short:
+
+                if i.language_region == "None"\
+                        or not i.series.date \
+                        or not i.title \
+                        or not i.summary_short:
                     context["mec_ready"] = False
+
+                if i.default:
+                    default += 1
+
+            if default != 1:
+                context["mec_ready"] = False
 
         return context
 

@@ -4,7 +4,7 @@
 
 {% block header %}Series{% endblock %}
 
-{% block aside %}Mec - Missing Requirements{% endblock %}
+{% block aside %}Mec - Requirements{% endblock %}
 
 {% block article %}
 
@@ -17,10 +17,10 @@
             {% if not series.seriesinfo_set %}
                 <li>Minimum one Localized Info</li>
             {% else %}
-                {% if not default_selected %}
-                    <li>At least one Localized Info must be set as default</li>
-                {% endif %}
                 {% for info in series.seriesinfo_set.all %}
+                    {% if info.language_region == "None" %}
+                        <li>Language region for Localized Info <a href="{% url 'amazon_mec_ep:info-detail' info.id %}" class="btn btn-info">{{ info }}</a></li>
+                    {% endif %}
                     {% if not info.title %}
                         <li>Title for Localized Info <a href="{% url 'amazon_mec_ep:info-detail' info.id %}" class="btn btn-info">{{ info }}</a></li>
                     {% endif %}
@@ -28,6 +28,19 @@
                         <li>Summary short for Localized Info <a href="{% url 'amazon_mec_ep:info-detail' info.id %}" class="btn btn-info">{{ info }}</a></li>
                     {% endif %}
                 {% endfor %}
+            {% endif %}
+        </ul>
+    </section>
+
+    <section>
+        <h4>The following elements must be fixed to generate the Mec for the series: {{ series.name }}</h4>
+        <ul>
+            {% if default_selected == 0 %}
+                <li>At least one Localized Info must be set as default</li>
+            {% elif default_selected > 1 %}
+                <li>Only one Localized Info must be set as default</li>
+            {% else %}
+                <li>Nothing to fix</li>
             {% endif %}
         </ul>
     </section>

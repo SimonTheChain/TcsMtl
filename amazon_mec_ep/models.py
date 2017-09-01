@@ -5,11 +5,9 @@ from converter import convert
 
 BLANK = (("", "---------"),)
 
-LANGUAGES = (("en", "English"),
-             ("fr", "French"),)
+LANGUAGES = convert.create_languages()
 
-REGIONS = (("CA", "Canada"),
-          ("US", "United States of America"),)
+REGIONS = convert.create_countries()
 
 GENRES = (("av_genre_action", "Action"),
           ("av_genre_comedy", "Comedy"),)
@@ -27,15 +25,15 @@ class Provider(models.Model):
 
 
 class TestClass(models.Model):
-    test_field = models.CharField(max_length=250, choices=convert.languages())
+    test_field = models.CharField(max_length=250, choices=LANGUAGES)
 
 
 class Series(models.Model):
     name = models.CharField(max_length=100, unique=True)
     amazon_id = models.CharField(max_length=50, unique=True)
     date = models.CharField(max_length=10, blank=True, null=True, default=None)
-    original_language_locale = models.CharField(max_length=2, choices=BLANK + LANGUAGES, default=None)
-    original_language_region = models.CharField(max_length=2, choices=BLANK + REGIONS, default=None)
+    original_language_locale = models.CharField(max_length=2, choices=LANGUAGES, default=None)
+    original_language_region = models.CharField(max_length=2, choices=REGIONS, default=None)
     genre1 = models.CharField(max_length=50, choices=BLANK + GENRES, default="av_genre_action")
     genre2 = models.CharField(max_length=50, choices=BLANK + GENRES, blank=True, null=True, default=None)
     genre3 = models.CharField(max_length=50, choices=BLANK + GENRES, blank=True, null=True, default=None)
@@ -49,7 +47,7 @@ class Series(models.Model):
 
 
 class SeriesRating(models.Model):
-    country = models.CharField(max_length=2, choices=BLANK + REGIONS, default=None)
+    country = models.CharField(max_length=2, choices=REGIONS, default=None)
     system = models.CharField(max_length=50, blank=True, null=True, default=None)
     value = models.CharField(max_length=50, blank=True, null=True, default=None)
     series = models.ForeignKey(Series)
@@ -59,8 +57,8 @@ class SeriesRating(models.Model):
 
 
 class SeriesInfo(models.Model):
-    language_locale = models.CharField(max_length=2, choices=BLANK + LANGUAGES, default=None)
-    language_region = models.CharField(max_length=2, choices=BLANK + REGIONS, default=None)
+    language_locale = models.CharField(max_length=2, choices=LANGUAGES, default=None)
+    language_region = models.CharField(max_length=2, choices=REGIONS, default=None)
     default = models.BooleanField(default=False)
     title = models.CharField(max_length=100, blank=True, null=True)
     summary_short = models.CharField(max_length=400, blank=True, null=True)
