@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block head %}{% load staticfiles %}{% endblock %}
+
+{% block header %}Series{% endblock %}
+
+{% block aside %}Delete Series{% endblock %}
+
+{% block article %}
+
+    <section>
+        <h4>Are you sure you want to delete the following series and all its related elements?</h4>
+        <p>Series: <strong>{{ series }}</strong></p>
+    </section>
+
+    <section>
+        <h4>Ratings</h4>
+        <ul>
+            {% for rating in series.seriesrating_set.all %}
+                <li><a href="{% url 'amazon_mec_ep:rating-detail' rating.id %}" class="btn btn-info">{{ rating }}</a></li>
+            {% empty %}
+                <li>No ratings have been added yet.</li>
+            {% endfor %}
+        </ul>
+    </section>
+
+    <section>
+        <h4>Localized Info</h4>
+        <ul>
+            {% for info in series.seriesinfo_set.all %}
+                <li><a href="{% url 'amazon_mec_ep:info-detail' info.id %}" class="btn btn-info">{{ info }}</a></li>
+            {% empty %}
+                <li>No localized info has been added yet.</li>
+            {% endfor %}
+        </ul>
+    </section>
+
+{% endblock %}
+
+{% block footer %}
+
+    <section>
+        <form method="post" action="">
+           {% csrf_token %}
+           <input type="submit" value="Delete" class="btn btn-danger"/><a href="{% url "amazon_mec_ep:series-detail" series.id %}" class="btn btn-default">Cancel</a>
+        </form>
+    </section>
+
+{% endblock %}

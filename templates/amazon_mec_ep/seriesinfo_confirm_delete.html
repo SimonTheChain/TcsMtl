@@ -4,13 +4,14 @@
 
 {% block header %}Series{% endblock %}
 
-{% block aside %}Localized Information Details{% endblock %}
+{% block aside %}Delete Localized Info{% endblock %}
 
 {% block article %}
 
     <section>
-        <h4>Details</h4>
+        <h4>Are you sure you want to delete the following localized info?</h4>
         <ul>
+            <li>Series: <a href="{% url 'amazon_mec_ep:series-detail' seriesinfo.series.id %}" class="btn btn-info">{{ seriesinfo.series }}</a></li>
             <li>Language: <strong>{{ seriesinfo.language_locale }}-{{ seriesinfo.language_region }}</strong></li>
             <li>Default: <strong>{{ seriesinfo.default }}</strong></li>
             <li>Title: <strong>{{ seriesinfo.title }}</strong></li>
@@ -24,10 +25,10 @@
 {% block footer %}
 
     <section>
-        <a href="{% url 'amazon_mec_ep:series-list' %}" class="btn btn-default">Series List</a>
-        <a href="{% url 'amazon_mec_ep:info-update' seriesinfo.id %}" class="btn btn-warning">Edit</a>
-        <a href="{% url 'amazon_mec_ep:info-delete' seriesinfo.id %}" class="btn btn-danger">Delete</a>
-        <a href="{% url 'amazon_mec_ep:series-detail' seriesinfo.series.id %}" class="btn btn-info">{{ seriesinfo.series.name }}</a>
+        <form method="post" action="">
+           {% csrf_token %}
+           <input type="submit" value="Delete" class="btn btn-danger"/><a href="{% url "amazon_mec_ep:series-detail" seriesinfo.series.id %}" class="btn btn-default">Cancel</a>
+        </form>
     </section>
 
 {% endblock %}

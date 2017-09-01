@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block head %}{% load staticfiles %}{% endblock %}
+
+{% block header %}Series{% endblock %}
+
+{% block aside %}Delete Rating{% endblock %}
+
+{% block article %}
+
+    <section>
+        <h4>Are you sure you want to delete the following rating?</h4>
+        <ul>
+            <li>Series: <a href="{% url 'amazon_mec_ep:series-detail' seriesrating.series.id %}" class="btn btn-info">{{ seriesrating.series }}</a></li>
+            <li>System: <strong>{{ seriesrating.system }}</strong></li>
+            <li>Value: <strong>{{ seriesrating.value }}</strong></li>
+            <li>Country: <strong>{{ seriesrating.country }}</strong></li>
+        </ul>
+    </section>
+
+{% endblock %}
+
+{% block footer %}
+
+    <section>
+        <form method="post" action="">
+           {% csrf_token %}
+           <input type="submit" value="Delete" class="btn btn-danger"/><a href="{% url "amazon_mec_ep:series-detail" seriesrating.series.id %}" class="btn btn-default">Cancel</a>
+        </form>
+    </section>
+
+{% endblock %}

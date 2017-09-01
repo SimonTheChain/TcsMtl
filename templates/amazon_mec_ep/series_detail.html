@@ -22,16 +22,23 @@
         </ul>
     </section>
 
+    <br>
+
     <section>
         <h4>Ratings</h4>
         <ul>
             {% for rating in series.seriesrating_set.all %}
-                <li><a href="#" class="btn btn-info">{{ rating.country }}: {{ rating.system }}, {{ rating.value }}</a></li>
+                <li><a href="{% url 'amazon_mec_ep:rating-detail' rating.id %}" class="btn btn-info">{{ rating.system }}</a></li>
+                <li>Value: <strong>{{ rating.value }}</strong></li>
+                <li>Country: <strong>{{ rating.country }}</strong></li>
+                <br>
             {% empty %}
                 <li>No ratings have been added yet.</li>
             {% endfor %}
         </ul>
     </section>
+
+    <br>
 
     <section>
         <h4>Localized Information</h4>
@@ -44,6 +51,7 @@
                     <li>Summary short: <strong>{{ info.summary_short }}</strong></li>
                     <li>Summary long: <strong>{{ info.summary_long }}</strong></li>
                 </ul>
+                <br>
             {% empty %}
                 <li>No localized information has been added yet.</li>
             {% endfor %}
@@ -57,9 +65,9 @@
     <section>
         <a href="{% url 'amazon_mec_ep:series-list' %}" class="btn btn-default">Series List</a>
         <a href="{% url 'amazon_mec_ep:series-update' series.id %}" class="btn btn-warning">Edit</a>
-        <a href="#" class="btn btn-danger">Delete</a>
-        <a href="#" class="btn btn-primary">Add Rating</a>
-        <a href="#" class="btn btn-primary">Add Localized Info</a>
+        <a href="{% url 'amazon_mec_ep:series-delete' series.id %}" class="btn btn-danger">Delete</a>
+        <a href="{% url 'amazon_mec_ep:rating-add' %}" class="btn btn-primary">Add Rating</a>
+        <a href="{% url 'amazon_mec_ep:info-add' %}" class="btn btn-primary">Add Localized Info</a>
         {% if mec_ready %}
             <a href="{% url 'amazon_mec_ep:series-mec' series.id %}" class="btn btn-success">Download Mec</a>
         {% else %}

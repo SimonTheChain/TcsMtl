@@ -47,18 +47,21 @@ class Series(models.Model):
 
 
 class SeriesRating(models.Model):
-    country = models.CharField(max_length=2, choices=REGIONS, default=None)
+    country = models.CharField(max_length=2, choices=REGIONS, blank=True, null=True, default=None)
     system = models.CharField(max_length=50, blank=True, null=True, default=None)
     value = models.CharField(max_length=50, blank=True, null=True, default=None)
     series = models.ForeignKey(Series)
 
     def __str__(self):
-        return self.country
+        return self.system
+
+    def get_absolute_url(self):
+        return reverse('amazon_mec_ep:rating-detail', kwargs={'pk': self.pk})
 
 
 class SeriesInfo(models.Model):
-    language_locale = models.CharField(max_length=2, choices=LANGUAGES, default=None)
-    language_region = models.CharField(max_length=2, choices=REGIONS, default=None)
+    language_locale = models.CharField(max_length=2, choices=LANGUAGES, blank=True, null=True, default=None)
+    language_region = models.CharField(max_length=2, choices=REGIONS, blank=True, null=True, default=None)
     default = models.BooleanField(default=False)
     title = models.CharField(max_length=100, blank=True, null=True)
     summary_short = models.CharField(max_length=400, blank=True, null=True)

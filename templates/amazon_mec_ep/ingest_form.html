@@ -17,6 +17,7 @@
             <br>
             <label for="xlsx_files">Select the metadata file to ingest:</label>
             <input type="file" name="xlsx_files" id="xlsx_files" accept=".xlsx">
+            <br>
             <button type="submit" name="files_btn" class="btn btn-success">Ingest File</button>
 
         </form>
@@ -24,7 +25,7 @@
 
     <section>
         {% if files_ingest %}
-            <h4>The following files have been successfully ingested</h4>
+            <h4>The following file has been successfully ingested</h4>
             <ul>
                 {% for f in files_ingest %}
                     <li>{{ f }}</li>

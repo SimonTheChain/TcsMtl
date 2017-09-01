@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block head %}{% load staticfiles %}{% endblock %}
+
+{% block header %}Series{% endblock %}
+
+{% block aside %}Ratings Form{% endblock %}
+
+{% block article %}
+
+    <section>
+        <form
+                action="{% if seriesrating.id %}{% url 'amazon_mec_ep:rating-update' seriesrating.id %}{% else %}#{% endif %}"
+                method="post"
+                enctype="multipart/form-data">
+        {% csrf_token %}
+
+            {{ form.as_p }}
+
+            <input type="submit" value="Save" class="btn btn-warning">
+
+        </form>
+    </section>
+
+{% endblock %}
+
+{% block footer %}
+
+    <section>
+        <a href="{% url 'amazon_mec_ep:series-list' %}" class="btn btn-default">Series List</a>
+    </section>
+
+{% endblock %}

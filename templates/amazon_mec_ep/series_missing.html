@@ -18,14 +18,14 @@
                 <li>Minimum one Localized Info</li>
             {% else %}
                 {% for info in series.seriesinfo_set.all %}
-                    {% if info.language_region == "None" %}
-                        <li>Language region for Localized Info <a href="{% url 'amazon_mec_ep:info-detail' info.id %}" class="btn btn-info">{{ info }}</a></li>
+                    {% if not info.language_region %}
+                        <li><a href="{% url 'amazon_mec_ep:info-update' info.id %}" class="btn btn-warning">Edit</a> Language region for Localized Info {{ info }}</li>
                     {% endif %}
                     {% if not info.title %}
-                        <li>Title for Localized Info <a href="{% url 'amazon_mec_ep:info-detail' info.id %}" class="btn btn-info">{{ info }}</a></li>
+                        <li><a href="{% url 'amazon_mec_ep:info-update' info.id %}" class="btn btn-warning">Edit</a> Title for Localized Info {{ info }}</li>
                     {% endif %}
                     {% if not info.summary_short %}
-                        <li>Summary short for Localized Info <a href="{% url 'amazon_mec_ep:info-detail' info.id %}" class="btn btn-info">{{ info }}</a></li>
+                        <li><a href="{% url 'amazon_mec_ep:info-update' info.id %}" class="btn btn-warning">Edit</a> Summary short for Localized Info {{ info }}</li>
                     {% endif %}
                 {% endfor %}
             {% endif %}

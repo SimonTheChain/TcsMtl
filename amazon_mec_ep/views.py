@@ -1,14 +1,16 @@
-from django.shortcuts import render
+import warnings
+
+import lxml.etree as etree
 from django.http import HttpResponse
-from django.views.generic.list import ListView
+from django.shortcuts import render
+from django.urls import reverse_lazy
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.urls import reverse_lazy
-from .models import Provider, Series, SeriesRating, SeriesInfo
-from .forms import SeriesForm
-import lxml.etree as etree
+from django.views.generic.list import ListView
 from openpyxl import load_workbook
-import warnings
+
+from .forms import SeriesForm
+from .models import Provider, Series, SeriesRating, SeriesInfo
 
 
 def ingest(request):
@@ -21,9 +23,8 @@ def ingest(request):
         if form.is_valid():
 
             for f in files:
-                print(f)
+                # Series
                 series_object = Series()
-                ratings_object = SeriesRating()
 
                 series_object.name = form.cleaned_data["name"]
                 series_object.original_language_locale = form.cleaned_data["original_language_locale"]
@@ -60,23 +61,33 @@ def ingest(request):
                             else:
                                 series_object.date = str(row[16].value)
 
-                    # if sheet.title == "Season":
-                    #     rows = sheet.rows
-                    #     next(rows)
-                    #     next(rows)
-                    #
-                    #     for row in rows:
-                    #
-                    #         # Rating
-                    #         if row[19].value in variables.a_ep_rating_system.values():
-                    #             pass
-                    #
-                    #         else:
-                    #             self.a_ep_add_rating(
-                    #                 xlsx_system=row[19].value,
-                    #                 xlsx_value=str(row[20].value))
-
                 series_object.save()
+
+                # Series Ratings
+                all_ratings = SeriesRating.objects.filter(series=series_object)
+
+                for sheet in wb:
+
+                    if sheet.title == "Season":
+                        rows = sheet.rows
+                        next(rows)
+                        next(rows)
+
+                        for row in rows:
+
+                            # Rating
+                            try:
+                                all_ratings.get(system=row[19].value)
+
+                            except SeriesRating.DoesNotExist:
+                                series_rating_object = SeriesRating()
+                                series_rating_object.system = row[19].value
+                                series_rating_object.value = row[20].value
+                                series_rating_object.series = series_object
+                                series_rating_object.save()
+
+                            else:
+                                pass
 
                 # Series Info
                 for sheet in wb:
@@ -89,8 +100,18 @@ def ingest(request):
                         for row in rows:
                             info_object = SeriesInfo()
 
-                            info_object.language_locale = str(row[0].value).replace(" ", "")
-                            info_object.language_region = str(row[1].value).replace(" ", "")
+                            if str(row[0].value).replace(" ", "") == "None":
+                                info_object.language_locale = None
+
+                            else:
+                                info_object.language_locale = str(row[0].value).replace(" ", "")
+
+                            if str(row[1].value).replace(" ", "") == "None":
+                                info_object.language_region = None
+
+                            else:
+                                info_object.language_region = str(row[1].value).replace(" ", "")
+
                             info_object.title = row[7].value
                             info_object.summary_short = row[9].value
                             info_object.summary_long = row[10].value
@@ -287,7 +308,7 @@ class SeriesDetail(DetailView):
 
             for i in info:
 
-                if i.language_region == "None"\
+                if not i.language_region\
                         or not i.series.date \
                         or not i.title \
                         or not i.summary_short:
@@ -312,6 +333,16 @@ class SeriesUpdate(UpdateView):
     fields = "__all__"
 
 
+class SeriesDelete(DeleteView):
+    model = Series
+    success_url = reverse_lazy("amazon_mec_ep:series-list")
+
+
+class SeriesInfoCreate(CreateView):
+    model = SeriesInfo
+    fields = "__all__"
+
+
 class SeriesInfoDetail(DetailView):
     model = SeriesInfo
 
@@ -319,3 +350,27 @@ class SeriesInfoDetail(DetailView):
 class SeriesInfoUpdate(UpdateView):
     model = SeriesInfo
     fields = "__all__"
+
+
+class SeriesInfoDelete(DeleteView):
+    model = SeriesInfo
+    success_url = reverse_lazy("amazon_mec_ep:series-list")
+
+
+class SeriesRatingCreate(CreateView):
+    model = SeriesRating
+    fields = "__all__"
+
+
+class SeriesRatingDetail(DetailView):
+    model = SeriesRating
+
+
+class SeriesRatingUpdate(UpdateView):
+    model = SeriesRating
+    fields = "__all__"
+
+
+class SeriesRatingDelete(DeleteView):
+    model = SeriesRating
+    success_url = reverse_lazy("amazon_mec_ep:series-list")
