@@ -27,6 +27,10 @@
         </ul>
     </section>
 
+{% endblock %}
+
+{% block footer %}
+
     <section>
         <a href="{% url 'amazon_mec_ep:provider-list' %}" class="btn btn-default">Provider List</a>
         <a href="{% url 'amazon_mec_ep:provider-update' provider.id %}" class="btn btn-warning">Edit</a>

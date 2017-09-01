@@ -17,6 +17,9 @@
             {% if not series.seriesinfo_set %}
                 <li>Minimum one Localized Info</li>
             {% else %}
+                {% if not default_selected %}
+                    <li>At least one Localized Info must be set as default</li>
+                {% endif %}
                 {% for info in series.seriesinfo_set.all %}
                     {% if not info.title %}
                         <li>Title for Localized Info <a href="{% url 'amazon_mec_ep:info-detail' info.id %}" class="btn btn-info">{{ info }}</a></li>
@@ -28,6 +31,10 @@
             {% endif %}
         </ul>
     </section>
+
+{% endblock %}
+
+{% block footer %}
 
     <section>
         <a href="{% url 'amazon_mec_ep:provider-list' %}" class="btn btn-default">Providers List</a>

@@ -21,6 +21,7 @@
 <body>
 
 {% block flexbox %}
+
     <!-- Flexbox container -->
     <div class="flex-container">
 
@@ -30,25 +31,23 @@
             <h2>{% block header %}{% endblock %}</h2>
         </header>
 
-        <div class="flex-container main">
+        <!-- Aside -->
+        <aside>
+            <h3>{% block aside %}{% endblock %}</h3>
+        </aside>
 
-            <!-- Aside -->
-            <aside>
-                <h3>{% block aside %}{% endblock %}</h3>
-            </aside>
+        <!-- Article -->
+        <article>
+            {% block article %}{% endblock %}
+        </article>
 
-            <!-- Article -->
-            <article>
-                {% block article %}{% endblock %}
-            </article>
-
-            <!-- Footer -->
-            <footer>
-                {% block footer %}{% endblock %}
-            </footer>
-        </div>
+        <!-- Footer -->
+        <footer>
+            {% block footer %}{% endblock %}
+        </footer>
 
     </div>
+
 {% endblock %}
 
 </body>

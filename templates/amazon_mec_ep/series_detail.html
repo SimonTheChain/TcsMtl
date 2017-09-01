@@ -50,6 +50,10 @@
         </ul>
     </section>
 
+{% endblock %}
+
+{% block footer %}
+
     <section>
         <a href="{% url 'amazon_mec_ep:series-list' %}" class="btn btn-default">Series List</a>
         <a href="{% url 'amazon_mec_ep:series-update' series.id %}" class="btn btn-warning">Edit</a>

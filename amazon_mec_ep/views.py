@@ -109,11 +109,17 @@ def ingest(request):
 
 def mec_missing(request, pk):
     series = Series.objects.get(pk=pk)
+    seriesinfo = SeriesInfo.objects.filter(series=series.id)
+
+    default_selected = False
+    for si in seriesinfo:
+        if si.default:
+            default_selected = True
 
     return render(
         request,
         "amazon_mec_ep/series_missing.html",
-        context={"series": series})
+        context={"series": series, "default_selected": default_selected})
 
 
 def mec_series(request, pk):

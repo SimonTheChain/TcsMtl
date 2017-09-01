@@ -1,5 +1,6 @@
 from django.urls import reverse
 from django.db import models
+from converter import convert
 
 
 BLANK = (("", "---------"),)
@@ -23,6 +24,10 @@ class Provider(models.Model):
 
     def get_absolute_url(self):
         return reverse('amazon_mec_ep:provider-detail', kwargs={'pk': self.pk})
+
+
+class TestClass(models.Model):
+    test_field = models.CharField(max_length=250, choices=convert.languages())
 
 
 class Series(models.Model):
