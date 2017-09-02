@@ -12,7 +12,7 @@
         <form action="{% url 'amazon_mec_ep:ingest' %}" method="post" enctype="multipart/form-data">
         {% csrf_token %}
 
-            {{ SeriesForm.as_p }}
+            {{ form.as_p }}
 
             <br>
             <label for="xlsx_files">Select the metadata file to ingest:</label>

@@ -14,8 +14,6 @@ from .models import Provider, Series, SeriesRating, SeriesInfo
 
 
 def ingest(request):
-    series_form = SeriesForm()
-
     if request.method == "POST":
         form = SeriesForm(request.POST)
         files = request.FILES.getlist("xlsx_files")
@@ -122,10 +120,11 @@ def ingest(request):
         return render(
             request,
             "amazon_mec_ep/ingest_form.html",
-            context={"SeriesForm": series_form, "files_ingest": files})
+            context={"form": form, "files_ingest": files})
 
     else:
-        return render(request, "amazon_mec_ep/ingest_form.html", context={"SeriesForm": series_form})
+        form = SeriesForm(request.POST)
+        return render(request, "amazon_mec_ep/ingest_form.html", context={"form": form})
 
 
 def mec_missing(request, pk):
